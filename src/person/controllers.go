@@ -7,10 +7,10 @@ import (
 )
 
 func Controller(router *gin.RouterGroup) {
-	router.GET("/:id", GetPersonDetail)
-	router.GET("/", GetPerson)
 	router.POST("/", PostPerson)
-	router.PUT("/:id", UpdatePerson)
+	router.GET("/:id", GetPersonDetail)
+	//router.GET("/", GetPerson)
+	//router.PUT("/:id", UpdatePerson)
 }
 
 func GetPerson(c *gin.Context) {
@@ -18,7 +18,15 @@ func GetPerson(c *gin.Context) {
 }
 
 func GetPersonDetail(c *gin.Context) {
-	c.JSON(404, gin.H{"error": "person not found"})
+	personId := c.Param("id")
+	personModel := ManagePersonToGet(personId)
+
+	if (PersonModel{}) == personModel {
+		c.JSON(http.StatusNotFound, gin.H{"error": "NO_PERSON_FOUND"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, personModel)
 }
 
 func UpdatePerson(c *gin.Context) {
@@ -43,5 +51,4 @@ func PostPerson(c *gin.Context) {
 		Id: personId,
 	}
 	c.JSON(http.StatusCreated, serializer.Response())
-
 }

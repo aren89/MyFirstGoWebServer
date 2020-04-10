@@ -8,11 +8,10 @@ import (
 	"time"
 )
 
-
 var DB *mongo.Database
 
 func Init() *mongo.Client {
-	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017").SetConnectTimeout(30*time.Second)
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017").SetConnectTimeout(30 * time.Second)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 
 	if err != nil {

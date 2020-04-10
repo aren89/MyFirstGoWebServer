@@ -1,6 +1,6 @@
 version: '3'
 services:
-  producer:
+  server:
     build: .
     image: go-web
     ports:

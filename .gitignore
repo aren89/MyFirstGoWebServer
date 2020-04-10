@@ -1,9 +1,7 @@
-
 # Created by https://www.gitignore.io/api/goland,go,linux,windows,MAC,jetbrains
 # Edit at https://www.gitignore.io/?templates=goland,go,linux,windows,MAC,jetbrains
 
 ### Go ###
-go.sum
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -157,5 +155,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+#MongoDB
+data/
 
 # End of https://www.gitignore.io/api/goland,go,linux,windows,MAC,jetbrains

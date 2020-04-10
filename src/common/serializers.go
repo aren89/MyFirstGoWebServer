@@ -6,11 +6,11 @@ import (
 
 type PostSerializer struct {
 	C  *gin.Context
-	Id int
+	Id interface{}
 }
 
 type PostResponse struct {
-	ID int `json:"id"`
+	ID interface{} `json:"id"`
 }
 
 func (s *PostSerializer) Response() PostResponse {

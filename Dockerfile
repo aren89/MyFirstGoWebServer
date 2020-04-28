@@ -1,15 +1,19 @@
-FROM golang:1.13
+FROM golang:1.13-alpine as builder
 
-RUN mkdir /app
+RUN apk update && apk add alpine-sdk git && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
 COPY . .
 
 RUN go build -o main ./cmd/server
+
+FROM alpine:latest
+
+RUN apk update && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+COPY --from=builder /app/main .
 
 EXPOSE 8080
 

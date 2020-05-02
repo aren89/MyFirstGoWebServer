@@ -6,7 +6,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"strconv"
 )
 
 type personRepositoryImpl struct {
@@ -30,11 +32,45 @@ func (p personRepositoryImpl) GetByID(ctx context.Context, id string) (core.Pers
 	return person, err
 }
 
+func (p personRepositoryImpl) Fetch(ctx context.Context, emailFilter string, yearsOfExperienceWorkingFilter string, estimatedLevelFilter string) ([]*core.Person, error) {
+	var results []*core.Person
+	collection := p.db.Collection("persons")
+	filter := bson.M{}
+	if emailFilter != "" {
+		filter["email"] = emailFilter
+	}
+	if yearsOfExperienceWorkingFilter != "" {
+		yoew, _ := strconv.ParseFloat(yearsOfExperienceWorkingFilter, 32)
+		filter["yearsOfExperienceWorking"] = bson.M{"$gte": yoew}
+	}
+	if estimatedLevelFilter != "" {
+		filter["estimatedLevel"] = estimatedLevelFilter
+	}
+
+	opts := options.Find()
+	opts.SetSort(bson.D{{"createdAt", -1}})
+	cur, err := collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var elem core.Person
+		err := cur.Decode(&elem)
+		if err != nil {
+			log.Println("Error while decoding person", err)
+		}
+		results = append(results, &elem)
+	}
+	return results, err
+}
+
 func (p personRepositoryImpl) Store(ctx context.Context, person *core.Person) (string, error) {
 	collection := p.db.Collection("persons")
 	insertResult, err := collection.InsertOne(ctx, person)
 	if err != nil {
-		log.Fatalln("Error on inserting new person", err)
+		log.Println("Error on inserting new person", err)
 		return "", err
 	}
 	return insertResult.InsertedID.(primitive.ObjectID).Hex(), nil

@@ -4,7 +4,8 @@ services:
     build: .
     image: go-web
     environment:
-      - MONGO_URI=mongodb://mongodb:27017
+      - DB_URI=mongodb://mongodb:27017
+      - DB_NAME=DB
     ports:
       - 8080:8080
     links:

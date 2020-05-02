@@ -15,6 +15,5 @@ func NewPersonHandler(router *gin.RouterGroup, ps core.PersonService) {
 	}
 	router.POST("/", handler.PostPerson)
 	router.GET("/:id", handler.GetPersonDetail)
-	//router.GET("/", GetPerson)
-	//router.PUT("/:id", UpdatePerson)
+	router.GET("/", handler.GetPersons)
 }

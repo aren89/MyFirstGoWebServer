@@ -1,8 +1,10 @@
 version: '3'
 services:
-  server:
-    build: .
-    image: go-web
+  api:
+    build:
+      context: ./
+      dockerfile: ./build/api/Dockerfile
+    image: go-web-api
     environment:
       - DB_URI=mongodb://mongodb:27017
       - DB_NAME=DB
@@ -11,6 +13,21 @@ services:
     links:
       - mongodb
     depends_on:
+      - mongodb
+
+  consumer:
+    build:
+      context: ./
+      dockerfile: ./build/kafka/Dockerfile
+    image: go-web-kafka
+    environment:
+      - DB_URI=mongodb://mongodb:27017
+      - DB_NAME=DB
+      - BOOTSTRAP_SERVER=kafka:9092
+    links:
+      - mongodb
+    depends_on:
+      - kafka
       - mongodb
 
   mongodb:
@@ -23,3 +40,42 @@ services:
       - ./data/db:/data/db
     ports:
       - 27017:27017
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  schema_registry:
+    image: confluentinc/cp-schema-registry:latest
+    hostname: schema_registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - "9052:9052"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: 'http://schema-registry:9052'
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'

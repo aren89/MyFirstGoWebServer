@@ -6,9 +6,11 @@ import (
 	_personRepo "MyFirstGoWebServer/internal/person/repository"
 	_personService "MyFirstGoWebServer/internal/person/service"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func main() {
+	log.Println("Startup api main")
 	db := database.Init()
 	router := gin.Default()
 	api := router.Group("/api")

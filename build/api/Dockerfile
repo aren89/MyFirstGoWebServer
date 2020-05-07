@@ -1,12 +1,14 @@
 FROM golang:1.13-alpine as builder
 
-RUN apk update && apk add alpine-sdk git && rm -rf /var/cache/apk/*
+RUN apk update \
+    && apk add alpine-sdk git  \
+    && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
 COPY . .
 
-RUN go build -o main ./cmd/server
+RUN go build -o main ./cmd/api
 
 FROM alpine:latest
 

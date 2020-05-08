@@ -5,6 +5,7 @@ import (
 )
 
 type JobOfferRepresentation struct {
+	Id           string   `json:"id"`
 	Company      string   `json:"company" binding:"required"`
 	Description  string   `json:"description" binding:"required"`
 	Role         string   `json:"role" binding:"required"`
@@ -12,6 +13,7 @@ type JobOfferRepresentation struct {
 }
 
 type JobOffer struct {
+	Id           string   `bson:"_id,omitempty"`
 	Company      string   `bson:"company" binding:"required"`
 	Description  string   `bson:"description" binding:"required"`
 	Role         string   `bson:"role" binding:"required"`
@@ -24,8 +26,8 @@ type JobOfferConsumer interface {
 
 type JobOfferService interface {
 	GetById(ctx context.Context, id string) (JobOfferRepresentation, error)
-	SaveKafkaMessage(ctx context.Context, p *JobOfferRepresentation) error
-	Fetch(ctx context.Context, emailFilter string, yearsOfExperienceWorkingFilter string, estimatedLevelFilter string) ([]JobOfferRepresentation, error)
+	SaveKafkaMessage(ctx context.Context, id string, p *JobOfferRepresentation) error
+	Fetch(ctx context.Context, roleFilter string, companyFilter string) ([]JobOfferRepresentation, error)
 }
 
 type JobOfferRepository interface {

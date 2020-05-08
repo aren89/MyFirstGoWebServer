@@ -2,6 +2,8 @@ package consumer
 
 import (
 	"MyFirstGoWebServer/internal/core"
+	"context"
+	"encoding/json"
 	"log"
 )
 
@@ -16,7 +18,18 @@ func NewJobOfferConsumer(js core.JobOfferService) core.JobOfferConsumer {
 }
 
 func (h *jobOfferConsumerImpl) HandleMessage(key []byte, value []byte) {
-	k := string(key)
-	v := string(value)
-	log.Println("message: ", k, v)
+	var jobOffer core.JobOfferRepresentation
+	type JSON map[string]string
+	var generic JSON
+	if err := json.Unmarshal(value, &jobOffer); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(key, &generic); err != nil {
+		log.Println(err)
+		return
+	}
+	if id, ok := generic["id"]; ok {
+		_ = h.JobOfferService.SaveKafkaMessage(context.Background(), id, &jobOffer)
+	}
 }

@@ -27,16 +27,6 @@ $ kafka-console-producer\
 $ {"id":"asdjsdenc"}_{"company":"coolCompany","description":"super cool job for you","role":"scrum master"}
 ```
 
-## Checking sent messages
-```sh
-$ docker-compose exec schema_registry bash
-$ kafka-avro-console-consumer\
-    --bootstrap-server kafka:9092\
-    --property schema.registry.url=http://schema_registry:9052\
-    --property print.key=true\
-    --from-beginning --topic com.confluent-kafka-producer.producer.TestMessage1
-```
-
 ## Create person
 ```sh
 curl --location --request POST 'http://127.0.0.1:8080/api/persons/' \

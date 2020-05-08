@@ -65,17 +65,3 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  schema_registry:
-    image: confluentinc/cp-schema-registry:latest
-    hostname: schema_registry
-    container_name: schema-registry
-    depends_on:
-      - zookeeper
-      - kafka
-    ports:
-      - "9052:9052"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: 'http://schema-registry:9052'
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'

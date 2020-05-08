@@ -6,6 +6,7 @@ import (
 )
 
 type PersonRepresentation struct {
+	Id                       string  `json:"id"`
 	FirstName                string  `json:"firstName" binding:"required"`
 	LastName                 string  `json:"lastName" binding:"required"`
 	Email                    string  `json:"email" binding:"required,email"`
@@ -15,6 +16,7 @@ type PersonRepresentation struct {
 }
 
 type Person struct {
+	Id                       string    `bson:"_id,omitempty"`
 	FirstName                string    `bson:"firstName" binding:"required"`
 	LastName                 string    `bson:"lastName" binding:"required"`
 	Email                    string    `bson:"email" binding:"required,email"`

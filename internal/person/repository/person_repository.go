@@ -4,7 +4,6 @@ import (
 	"MyFirstGoWebServer/internal/core"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -24,8 +23,7 @@ func NewPersonRepository(db *mongo.Database) core.PersonRepository {
 func (p personRepositoryImpl) GetByID(ctx context.Context, id string) (core.Person, error) {
 	var person core.Person
 	collection := p.db.Collection("persons")
-	objID, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.M{"_id": objID}
+	filter := bson.M{"_id": id}
 	documentReturned := collection.FindOne(ctx, filter)
 	err := documentReturned.Decode(&person)
 	log.Println("Get person document", person, err, filter)
@@ -73,5 +71,5 @@ func (p personRepositoryImpl) Store(ctx context.Context, person *core.Person) (s
 		log.Println("Error on inserting new person", err)
 		return "", err
 	}
-	return insertResult.InsertedID.(primitive.ObjectID).Hex(), nil
+	return insertResult.InsertedID.(string), nil
 }

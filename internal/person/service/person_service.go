@@ -3,6 +3,8 @@ package service
 import (
 	"MyFirstGoWebServer/internal/core"
 	"context"
+	"github.com/google/uuid"
+	"log"
 	"time"
 )
 
@@ -17,7 +19,10 @@ func NewPersonService(pr core.PersonRepository) core.PersonService {
 }
 
 func (p personServiceImpl) StoreWithEstimatedLevel(ctx context.Context, personRepresentation *core.PersonRepresentation) (string, error) {
+	_uuid := uuid.New().String()
+	log.Println("_uuid", _uuid)
 	person := core.Person{
+		Id:                       _uuid,
 		FirstName:                personRepresentation.FirstName,
 		LastName:                 personRepresentation.LastName,
 		Email:                    personRepresentation.Email,
@@ -48,11 +53,12 @@ func (p personServiceImpl) Fetch(ctx context.Context, emailFilter string, yearsO
 	}
 	for _, person := range persons {
 		personRepresentation := core.PersonRepresentation{
-			FirstName:   person.FirstName,
-			LastName:    person.LastName,
-			Email:       person.Email,
-			Age:         person.Age,
-			Gender:      person.Gender,
+			Id:                       person.Id,
+			FirstName:                person.FirstName,
+			LastName:                 person.LastName,
+			Email:                    person.Email,
+			Age:                      person.Age,
+			Gender:                   person.Gender,
 			YearsOfExperienceWorking: person.YearsOfExperienceWorking,
 		}
 		personsRepresentation = append(personsRepresentation, personRepresentation)
@@ -66,11 +72,12 @@ func (p personServiceImpl) GetById(ctx context.Context, id string) (core.PersonR
 		return core.PersonRepresentation{}, err
 	}
 	personRepresentation := core.PersonRepresentation{
-		FirstName:   person.FirstName,
-		LastName:    person.LastName,
-		Email:       person.Email,
-		Age:         person.Age,
-		Gender:      person.Gender,
+		Id:                       person.Id,
+		FirstName:                person.FirstName,
+		LastName:                 person.LastName,
+		Email:                    person.Email,
+		Age:                      person.Age,
+		Gender:                   person.Gender,
 		YearsOfExperienceWorking: person.YearsOfExperienceWorking,
 	}
 	return personRepresentation, nil

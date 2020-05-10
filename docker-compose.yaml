@@ -49,11 +49,6 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "9092"]
-      timeout: 45s
-      interval: 10s
-      retries: 10
     depends_on:
       - zookeeper
     ports:

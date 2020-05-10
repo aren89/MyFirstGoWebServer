@@ -10,29 +10,29 @@ import (
 
 type jobOfferRepositoryImpl struct {
 	db *mongo.Database
+	collection *mongo.Collection
 }
 
 func NewJobOfferRepository(db *mongo.Database) core.JobOfferRepository {
 	return &jobOfferRepositoryImpl{
 		db: db,
+		collection: db.Collection("jobOffers"),
 	}
 }
 
 func (j jobOfferRepositoryImpl) GetByID(ctx context.Context, id string) (core.JobOffer, error) {
 	var jobOffer core.JobOffer
-	collection := j.db.Collection("jobOffers")
 	filter := bson.M{"_id": id}
-	documentReturned := collection.FindOne(ctx, filter)
+	documentReturned := j.collection.FindOne(ctx, filter)
 	err := documentReturned.Decode(&jobOffer)
 	log.Println("Get job offer document", jobOffer, err, filter)
 	return jobOffer, err
 }
 
 func (j jobOfferRepositoryImpl) Store(ctx context.Context, p *core.JobOffer) error {
-	collection := j.db.Collection("jobOffers")
 	filter := bson.M{"_id": p.Id}
-	if result := collection.FindOneAndReplace(ctx, filter, p); result != nil {
-		_, err := collection.InsertOne(ctx, p)
+	if result := j.collection.FindOneAndReplace(ctx, filter, p); result != nil {
+		_, err := j.collection.InsertOne(ctx, p)
 		if err != nil {
 			log.Println("Error on inserting new job offer", err)
 			return err
@@ -43,7 +43,6 @@ func (j jobOfferRepositoryImpl) Store(ctx context.Context, p *core.JobOffer) err
 
 func (j jobOfferRepositoryImpl) Fetch(ctx context.Context, roleFilter string, companyFilter string) ([]*core.JobOffer, error) {
 	var results []*core.JobOffer
-	collection := j.db.Collection("jobOffers")
 	filter := bson.M{}
 	if roleFilter != "" {
 		filter["role"] = roleFilter
@@ -52,7 +51,7 @@ func (j jobOfferRepositoryImpl) Fetch(ctx context.Context, roleFilter string, co
 		filter["company"] = companyFilter
 	}
 
-	cur, err := collection.Find(ctx, filter)
+	cur, err := j.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

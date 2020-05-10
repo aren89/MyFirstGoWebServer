@@ -19,7 +19,13 @@ func NewJobOfferRepository(db *mongo.Database) core.JobOfferRepository {
 }
 
 func (j jobOfferRepositoryImpl) GetByID(ctx context.Context, id string) (core.JobOffer, error) {
-	panic("implement me")
+	var jobOffer core.JobOffer
+	collection := j.db.Collection("jobOffers")
+	filter := bson.M{"_id": id}
+	documentReturned := collection.FindOne(ctx, filter)
+	err := documentReturned.Decode(&jobOffer)
+	log.Println("Get job offer document", jobOffer, err, filter)
+	return jobOffer, err
 }
 
 func (j jobOfferRepositoryImpl) Store(ctx context.Context, p *core.JobOffer) error {
@@ -36,5 +42,29 @@ func (j jobOfferRepositoryImpl) Store(ctx context.Context, p *core.JobOffer) err
 }
 
 func (j jobOfferRepositoryImpl) Fetch(ctx context.Context, roleFilter string, companyFilter string) ([]*core.JobOffer, error) {
-	panic("implement me")
+	var results []*core.JobOffer
+	collection := j.db.Collection("jobOffers")
+	filter := bson.M{}
+	if roleFilter != "" {
+		filter["role"] = roleFilter
+	}
+	if companyFilter != "" {
+		filter["company"] = companyFilter
+	}
+
+	cur, err := collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var elem core.JobOffer
+		err := cur.Decode(&elem)
+		if err != nil {
+			log.Println("Error while decoding jobOffer", err)
+		}
+		results = append(results, &elem)
+	}
+	return results, err
 }

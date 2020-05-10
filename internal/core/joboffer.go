@@ -9,7 +9,7 @@ type JobOfferRepresentation struct {
 	Company      string   `json:"company" binding:"required"`
 	Description  string   `json:"description" binding:"required"`
 	Role         string   `json:"role" binding:"required"`
-	Applications []string `json:"applications"`
+	Applications *[]string `json:"applications"`
 }
 
 type JobOffer struct {
@@ -17,7 +17,7 @@ type JobOffer struct {
 	Company      string   `bson:"company" binding:"required"`
 	Description  string   `bson:"description" binding:"required"`
 	Role         string   `bson:"role" binding:"required"`
-	Applications []string `bson:"applications"`
+	Applications *[]string `bson:"applications"`
 }
 
 type JobOfferConsumer interface {

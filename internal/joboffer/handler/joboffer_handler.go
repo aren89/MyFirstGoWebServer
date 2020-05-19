@@ -13,7 +13,7 @@ func (h *jobOfferHandlerImpl) GetJobOfferDetail(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
-	if (core.JobOfferRepresentation{}) == jobOfferRepresentation {
+	if "" == jobOfferRepresentation.Id {
 		c.JSON(http.StatusNotFound, gin.H{"error": "NO_JOB_OFFER_FOUND"})
 		return
 	}

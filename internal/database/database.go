@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func Init() *mongo.Database {
+func Init() (*mongo.Database, *mongo.Client) {
 	uri := os.Getenv("DB_URI")
 	name := os.Getenv("DB_NAME")
-	clientOptions := options.Client().ApplyURI(uri).SetConnectTimeout(30 * time.Second)
+	clientOptions := options.Client().ApplyURI(uri).SetConnectTimeout(30 * time.Second).SetReplicaSet("rs0")
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
@@ -23,5 +23,5 @@ func Init() *mongo.Database {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return client.Database(name)
+	return client.Database(name), client
 }

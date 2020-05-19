@@ -11,6 +11,7 @@ It's a WIP project.
 
 ## Requirements:
   - [docker-compose](https://docs.docker.com/compose/install/)
+  - To connect with a client on mongodb replica you need to add in /etc/hosts mongodb1, mongodb2, mongodb3 at 127.0.0.1
 
 ## Run
 ```sh
@@ -18,8 +19,7 @@ $ docker-compose up -d --build
 ```
 ## Send a job offer kafka message
 ```sh
-$ docker-compose exec kafka bash
-$ kafka-console-producer\
+$ docker-compose exec kafka kafka-console-producer\
       --broker-list kafka:9092\
       --topic com.github.JobOffer \
       --property "parse.key=true" \

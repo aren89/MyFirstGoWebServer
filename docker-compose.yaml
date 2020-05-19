@@ -6,14 +6,12 @@ services:
       dockerfile: ./build/api/Dockerfile
     image: go-web-api
     environment:
-      - DB_URI=mongodb://mongodb:27017
+      - DB_URI=mongodb://mongodb1:27017,mongodb://mongodb2:27017,mongodb://mongodb3:27017
       - DB_NAME=DB
     ports:
       - 8080:8080
-    links:
-      - mongodb
     depends_on:
-      - mongodb
+      - setup-rs
 
   consumer:
     build:
@@ -21,25 +19,77 @@ services:
       dockerfile: ./build/kafka/Dockerfile
     image: go-web-kafka
     environment:
-      - DB_URI=mongodb://mongodb:27017
+      - DB_URI=mongodb://mongodb1:27017,mongodb://mongodb2:27017,mongodb://mongodb3:27017
       - DB_NAME=DB
       - BOOTSTRAP_SERVER=kafka:9092
-    links:
-      - mongodb
     depends_on:
       - kafka
-      - mongodb
+      - setup-rs
 
-  mongodb:
+  setup-rs:
+    image: "setup-rs"
+    build: ./build/replica/
+    depends_on:
+      - mongodb1
+      - mongodb2
+      - mongodb3
+
+  mongodb1:
     image: mongo:latest
-    container_name: "mongodb"
+    hostname: mongodb1
+    container_name: mongodb1
+    healthcheck:
+      test: ["CMD", "docker-healthcheck"]
+      interval: 10s
+      timeout: s
+      retries: 3
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/data/db
+      - ./data/replica1/db:/data/db
     ports:
       - 27017:27017
+    restart: always
+    command: --replSet rs0
+
+  mongodb2:
+    image: mongo:latest
+    hostname: mongodb2
+    container_name: mongodb2
+    healthcheck:
+      test: ["CMD", "docker-healthcheck"]
+      interval: 10s
+      timeout: s
+      retries: 3
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/replica2/db:/data/db
+    ports:
+      - 27018:27017
+    restart: always
+    command: --replSet rs0
+
+  mongodb3:
+    image: mongo:latest
+    hostname: mongodb3
+    container_name: mongodb3
+    healthcheck:
+      test: ["CMD", "docker-healthcheck"]
+      interval: 10s
+      timeout: s
+      retries: 3
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/replica3/db:/data/db
+    ports:
+      - 27019:27017
+    restart: always
+    command: --replSet rs0
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -49,6 +99,11 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
     depends_on:
       - zookeeper
     ports:

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type JobOfferRepresentation struct {
@@ -9,7 +10,7 @@ type JobOfferRepresentation struct {
 	Company      string   `json:"company" binding:"required"`
 	Description  string   `json:"description" binding:"required"`
 	Role         string   `json:"role" binding:"required"`
-	Applications *[]string `json:"applications"`
+	Applications []string `json:"applications"`
 }
 
 type JobOffer struct {
@@ -17,7 +18,7 @@ type JobOffer struct {
 	Company      string   `bson:"company" binding:"required"`
 	Description  string   `bson:"description" binding:"required"`
 	Role         string   `bson:"role" binding:"required"`
-	Applications *[]string `bson:"applications"`
+	Applications []string `bson:"applications"`
 }
 
 type JobOfferConsumer interface {
@@ -34,4 +35,6 @@ type JobOfferRepository interface {
 	GetByID(ctx context.Context, id string) (JobOffer, error)
 	Store(ctx context.Context, p *JobOffer) error
 	Fetch(ctx context.Context, roleFilter string, companyFilter string) ([]*JobOffer, error)
+	PushApplication(ctx mongo.SessionContext, id string, applicationId string) error
+	PopApplication(ctx mongo.SessionContext, applicationId string) error
 }

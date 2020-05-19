@@ -3,19 +3,20 @@ package repository
 import (
 	"MyFirstGoWebServer/internal/core"
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
 
 type jobOfferRepositoryImpl struct {
-	db *mongo.Database
+	db         *mongo.Database
 	collection *mongo.Collection
 }
 
 func NewJobOfferRepository(db *mongo.Database) core.JobOfferRepository {
 	return &jobOfferRepositoryImpl{
-		db: db,
+		db:         db,
 		collection: db.Collection("jobOffers"),
 	}
 }
@@ -66,4 +67,28 @@ func (j jobOfferRepositoryImpl) Fetch(ctx context.Context, roleFilter string, co
 		results = append(results, &elem)
 	}
 	return results, err
+}
+
+func (j jobOfferRepositoryImpl) PushApplication(ctx mongo.SessionContext, id string, applicationId string) error {
+	result, err := j.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$addToSet": bson.M{"applications": applicationId}})
+	if err != nil {
+		log.Println("cannot update job offer", err)
+		return err
+	}
+	if result.MatchedCount != 1 || result.ModifiedCount != 1 {
+		return errors.New("no job offer modified")
+	}
+	return nil
+}
+
+func (j jobOfferRepositoryImpl) PopApplication(ctx mongo.SessionContext, applicationId string) error {
+	result, err := j.collection.UpdateMany(ctx, bson.M{}, bson.M{"$pull": bson.M{"applications": applicationId}})
+	if err != nil {
+		log.Println("cannot update job offer", err)
+		return err
+	}
+	if result.MatchedCount < 1 || result.ModifiedCount < 1 {
+		return errors.New("no job offer modified")
+	}
+	return nil
 }

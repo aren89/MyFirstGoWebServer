@@ -4,7 +4,6 @@ import (
 	"MyFirstGoWebServer/internal/core"
 	"context"
 	"github.com/google/uuid"
-	"log"
 	"time"
 )
 
@@ -20,7 +19,6 @@ func NewPersonService(pr core.PersonRepository) core.PersonService {
 
 func (p personServiceImpl) StoreWithEstimatedLevel(ctx context.Context, personRepresentation *core.PersonRepresentation) (string, error) {
 	_uuid := uuid.New().String()
-	log.Println("_uuid", _uuid)
 	person := core.Person{
 		Id:                       _uuid,
 		FirstName:                personRepresentation.FirstName,

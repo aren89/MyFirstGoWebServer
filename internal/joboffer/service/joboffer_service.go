@@ -32,10 +32,11 @@ func (j jobOfferServiceImpl) GetById(ctx context.Context, id string) (core.JobOf
 
 func (j jobOfferServiceImpl) SaveKafkaMessage(ctx context.Context, id string, p *core.JobOfferRepresentation) error {
 	jobOffer := core.JobOffer{
-		Id:          id,
-		Company:     p.Company,
-		Description: p.Description,
-		Role:        p.Role,
+		Id:           id,
+		Company:      p.Company,
+		Description:  p.Description,
+		Role:         p.Role,
+		Applications: []string{},
 	}
 	err := j.JobOfferRepo.Store(ctx, &jobOffer)
 	return err

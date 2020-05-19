@@ -15,7 +15,7 @@ import (
 
 func main() {
 	log.Println("Startup kafka main")
-	db := database.Init()
+	db, _ := database.Init()
 
 	topicJobOffer, c := _kafkaConsumer.Init()
 	defer c.Close()

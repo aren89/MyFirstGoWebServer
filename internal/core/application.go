@@ -21,9 +21,11 @@ type Application struct {
 type ApplicationService interface {
 	SaveApplication(ctx context.Context, p *ApplicationRepresentation) (string, error)
 	Delete(ctx context.Context, id string) error
+	GetById(ctx context.Context, id string) (ApplicationRepresentation, error)
 }
 
 type ApplicationRepository interface {
 	Store(ctx context.Context, p *Application) (string, error)
 	Delete(ctx context.Context, id string) error
+	GetByID(ctx context.Context, id string) (Application, error)
 }
